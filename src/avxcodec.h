@@ -1,5 +1,5 @@
-#ifndef DICT_SCALAR_H
-#define DICT_SCALAR_H
+#ifndef DICT_AVX_H
+#define DICT_AVX_H
 
 /**
 * This is silly compression/decompression code. Meant to test the basics, not
@@ -9,28 +9,28 @@
 #include <cstdint>
 #include <cstddef>
 #include <unordered_map>
-#include "bpacking.h"
+#include "avxbpacking.h"
 #include "dict.h"
 
 
 /**
 * This class is *not* thread-safe, use one instance per thread.
 */
-class SimpleDictCODEC {
+class AVXDictCODEC {
 public:
-    SimpleDictCODEC() : tmpbuffer(NULL), buffercapacity(0) {}
 
-    virtual ~SimpleDictCODEC() {
+    AVXDictCODEC() : tmpbuffer(NULL), buffercapacity(0) {}
+
+    virtual ~AVXDictCODEC() {
         clearBuffer();
     }
-
     /**
     * Silly code that compresses an array of 64-bit integers to an array of char,
     * outputting a convenient data structure.
     *
     * This could be *greatly* optimized.
     *
-    * For simplicity, array lengths are assumed to be multiples of 32.
+    * For simplicity, array lengths are assumed to be multiples of 256.
     */
     inline dictionary_coded_t compress(const uint64_t * array, size_t length) {
         dictionary_coded_t out;
@@ -49,11 +49,11 @@ public:
         for(size_t i = 0; i < out.array_length ; ++i) {
             tmpbuffer[i] = distinctvalues[array[i]];
         }
-        assert(length % 32 == 0);
+        assert(length % 256 == 0);
         out.bit_width = 32 - __builtin_clz(out.dictionary_size);
         out.compressed_data_size = sizeof(uint32_t) * out.bit_width * length / 32;
         out.compressed_data = new char[out.compressed_data_size];
-        packwithoutmask32(tmpbuffer,(uint32_t *) out.compressed_data, out.array_length, out.bit_width);
+        avxpackwithoutmask(tmpbuffer,(__m256i *) out.compressed_data, out.array_length, out.bit_width);
         return out;
     }
 
@@ -65,21 +65,19 @@ public:
     *
     * This could be optimized.
     *
-    * For simplicity, array lengths are assumed to be multiples of 32.
+    * For simplicity, array lengths are assumed to be multiples of 256.
     *
     * Return array size
     */
     inline uint32_t uncompress(const dictionary_coded_t t, uint64_t * out) {
         ensureBufferCapacity(t.array_length);
-        assert(t.array_length % 32 == 0);
-        unpack32((const uint32_t*) t.compressed_data, tmpbuffer, t.array_length, t.bit_width);
+        assert(t.array_length % 256 == 0);
+        avxunpack((const __m256i*) t.compressed_data, tmpbuffer, t.array_length, t.bit_width);
         for(size_t i = 0; i < t.array_length; ++i) {
             out[i] = t.dictionary[tmpbuffer[i]];
         }
         return t.array_length;
     }
-
-
 
     inline void clearBuffer() {
         buffercapacity = 0;
@@ -89,12 +87,11 @@ public:
 
 private:
 
-
     // by design, does not copy
-    SimpleDictCODEC(const SimpleDictCODEC & ) : tmpbuffer(NULL), buffercapacity(0) {}
+    AVXDictCODEC(const AVXDictCODEC & ) : tmpbuffer(NULL), buffercapacity(0) {}
 
 
-    SimpleDictCODEC& operator=(const SimpleDictCODEC & ) {
+    AVXDictCODEC& operator=(const AVXDictCODEC & ) {
         // does nothing, by design
         return *this;
     }
@@ -110,8 +107,6 @@ private:
     }
     uint32_t * tmpbuffer;
     size_t buffercapacity;
-
-
 };
 
 

@@ -1,30 +1,17 @@
+#ifndef DICT_SCALAR_H
+#define DICT_SCALAR_H
+
 /**
 * This is silly compression/decompression code. Meant to test the basics, not
 * for production.
 */
-
-#include <stdint>
+#include <cassert>
+#include <cstdint>
+#include <cstddef>
 #include <unordered_map>
 #include "bpacking.h"
+#include "dict.h"
 
-typedef struct dictionary_coded_s {
-    int64_t * dictionary;
-    uint32_t dictionary_size;
-
-    char *compressed_data;
-    size_t array_length;// uncompressed length in 64-bit words
-    int bit_width;
-} dictionary_coded_t;
-
-dictionary_coded_delete(dictionary_coded_t * t) {
-    delete[] t->dictionary;
-    t->dictionary = NULL;
-    delete[] compressed_data;
-    t->compressed_data = NULL;
-    t->dictionary_size = 0;
-    t->array_length = 0;
-    t->bit_width = 0;
-}
 
 /**
 * This class is *not* thread-safe, use one instance per thread.
@@ -33,6 +20,9 @@ class SimpleDictCODEC {
 public:
     SimpleDictCODEC() : tmpbuffer(NULL), buffercapacity(0) {}
 
+    virtual ~SimpleDictCODEC() {
+        clearBuffer();
+    }
 
     /**
     * Silly code that compresses an array of 64-bit integers to an array of char,
@@ -42,7 +32,7 @@ public:
     *
     * For simplicity, array lengths are assumed to be multiples of 32.
     */
-    inline dictionary_coded_t compress(uint64_t * array, size_t length) {
+    inline dictionary_coded_t compress(const uint64_t * array, size_t length) {
         dictionary_coded_t out;
         out.array_length = length;
         ensureBufferCapacity(out.array_length);
@@ -55,13 +45,14 @@ public:
             }
         }
         out.dictionary = new uint64_t[out.dictionary_size];
-        for(auto i = distinctvalues.begin(); i != distinctvalues.end(); ++i)  array[i->second] = i->first;
+        for(auto i = distinctvalues.begin(); i != distinctvalues.end(); ++i)  out.dictionary[i->second] = i->first;
         for(size_t i = 0; i < out.array_length ; ++i) {
             tmpbuffer[i] = distinctvalues[array[i]];
         }
         assert(length % 32 == 0);
         out.bit_width = 32 - __builtin_clz(out.dictionary_size);
-        out.compressed_data = new char[sizeof(uint32_t) * out.bit_width * length / 32];
+        out.compressed_data_size = sizeof(uint32_t) * out.bit_width * length / 32;
+        out.compressed_data = new char[out.compressed_data_size];
         packwithoutmask32(tmpbuffer,(uint32_t *) out.compressed_data, out.array_length, out.bit_width);
         return out;
     }
@@ -75,14 +66,17 @@ public:
     * This could be optimized.
     *
     * For simplicity, array lengths are assumed to be multiples of 32.
+    *
+    * Return array size
     */
-    inline void compress(dictionary_coded_t t, uint64_t * out) {
+    inline uint32_t uncompress(const dictionary_coded_t t, uint64_t * out) {
         ensureBufferCapacity(t.array_length);
         assert(t.array_length % 32 == 0);
-        unpack32((const uint32_t*) t.compresseddata, tmpbuffer, t.array_length, t.bit_width);
-        for(size_t i = 0; i < length; ++i) {
+        unpack32((const uint32_t*) t.compressed_data, tmpbuffer, t.array_length, t.bit_width);
+        for(size_t i = 0; i < t.array_length; ++i) {
             out[i] = t.dictionary[tmpbuffer[i]];
         }
+        return t.array_length;
     }
 
 
@@ -92,11 +86,24 @@ public:
         delete[] tmpbuffer;
         tmpbuffer = NULL;
     }
+
 private:
+
+
+    // by design, does not copy
+    SimpleDictCODEC(const SimpleDictCODEC & ) : tmpbuffer(NULL), buffercapacity(0) {}
+
+
+    SimpleDictCODEC& operator=(const SimpleDictCODEC & ) {
+        // does nothing, by design
+        return *this;
+    }
+
+
     inline void ensureBufferCapacity(size_t desiredcap) {
-        if(desiredcap < buffercapacity) {
+        if(desiredcap > buffercapacity) {
             delete[] tmpbuffer;
-            tmpbuffer = new uint32[desiredcap];
+            tmpbuffer = new uint32_t[desiredcap];
             assert(tmpbuffer!= NULL);
             buffercapacity = desiredcap;
         }
@@ -106,3 +113,6 @@ private:
 
 
 };
+
+
+#endif

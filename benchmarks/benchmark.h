@@ -104,7 +104,7 @@ static inline void tellmeall() {
 
 #define RDTSC_START(cycles)                                                   \
     do {                                                                      \
-        register unsigned cyc_high, cyc_low;                                  \
+        unsigned cyc_high, cyc_low;                                  \
         __asm volatile(                                                       \
             "cpuid\n\t"                                                       \
             "rdtsc\n\t"                                                       \
@@ -116,7 +116,7 @@ static inline void tellmeall() {
 
 #define RDTSC_FINAL(cycles)                                                   \
     do {                                                                      \
-        register unsigned cyc_high, cyc_low;                                  \
+        unsigned cyc_high, cyc_low;                                  \
         __asm volatile(                                                       \
             "rdtscp\n\t"                                                      \
             "mov %%edx, %0\n\t"                                               \

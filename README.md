@@ -31,7 +31,7 @@ instruction. Thankfully, recent commodity x64 processors have such an instructio
 
 ## Credit
 
-Builds on work done by Eric Daniel on parquet-cpp.  
+Builds on work done by Eric Daniel for ``parquet-cpp``.  
 
 ## Usage
 

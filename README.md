@@ -20,3 +20,16 @@ try to recover the dictionary-coded values as fast as possible.
 
 We are going to assume that one has a recent (Haswell from 2013 or better) Intel processor
 for the sake of this experiment.
+
+## Usage
+
+```bash
+make && make test
+./decodebenchmark
+```
+
+## Limitations
+- For simplicity, we assume that the dictionary is made of 64-bit words. It is hard-coded in the code, but not a fundamental limitation: the code would be faster with smaller words.
+- This code is not meant to be use in production. It is a demo.
+- This code makes up its own convenient format. It is not meant to plug as-is into an existing framework.
+- We assume that the arrays are large. If you have tiny arrays... well...

@@ -69,7 +69,7 @@ public:
     *
     * Return array size
     */
-    inline uint32_t uncompress(const dictionary_coded_t t, uint64_t * out) {
+    inline uint32_t uncompress(const dictionary_coded_t & t, uint64_t * out) {
         ensureBufferCapacity(t.array_length);
         assert(t.array_length % 32 == 0);
         unpack32((const uint32_t*) t.compressed_data, tmpbuffer, t.array_length, t.bit_width);

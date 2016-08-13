@@ -1,7 +1,19 @@
 
 #ifndef DICT_UTIL_AVXBPACKING_H
 #define DICT_UTIL_AVXBPACKING_H
+
+#ifndef __AVX2__
+#error This code requires AVX2 support (available on Intel processors made since ~2013)
+#endif
+
+#ifdef _MSC_VER
+/* Microsoft C/C++-compatible compiler */
+#include <intrin.h>
+#else
+/* Pretty much anything else. */
 #include <x86intrin.h>
+#endif
+
 #include <cstring>
 #include <cstdint>
 

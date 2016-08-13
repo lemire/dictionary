@@ -18,11 +18,13 @@ void basictest(uint32_t distinct, uint32_t length) {
     for(size_t i = 0; i < length; i++) {
         assert(buf[i] == newbuf[i]);
     }
+    delete[] newbuf;
+    delete[] buf;
 }
 
 int main() {
-    for(uint32_t length = 32; length < 65536; length *=2) {
-        for(uint32_t distinct = 2; distinct < 65536; distinct *=2) {
+    for(uint32_t length = 256; length < 65536; length *=2) {
+        for(uint32_t distinct = 1; distinct < 65536; distinct *=2) {
             basictest(distinct, length);
         }
         std::cout << ".";
@@ -30,4 +32,5 @@ int main() {
     }
     std::cout << std::endl;
     std::cout << "Scalar code might be ok. " << std::endl;
+    return 0;
 }

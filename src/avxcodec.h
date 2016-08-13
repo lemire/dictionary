@@ -9,7 +9,21 @@
 #include <cstdint>
 #include <cstddef>
 #include <unordered_map>
+
+#ifndef __AVX2__
+#error This code requires AVX2 support (available on Intel processors made since ~2013)
+#endif
+
+#ifdef _MSC_VER
+/* Microsoft C/C++-compatible compiler */
+#include <intrin.h>
+#else
+/* Pretty much anything else. */
+#include <x86intrin.h>
+#endif
+
 #include "avxbpacking.h"
+#include "avxdict.h"
 #include "dict.h"
 
 
@@ -69,7 +83,7 @@ public:
     *
     * Return array size
     */
-    inline uint32_t uncompress(const dictionary_coded_t t, uint64_t * out) {
+    inline uint32_t uncompress(const dictionary_coded_t & t, uint64_t * out) {
         ensureBufferCapacity(t.array_length);
         assert(t.array_length % 256 == 0);
         avxunpack((const __m256i*) t.compressed_data, tmpbuffer, t.array_length, t.bit_width);
@@ -78,6 +92,23 @@ public:
         }
         return t.array_length;
     }
+
+    /**
+    * Prototype code that uncompresses an array of 64-bit integers.
+    * The out array should have enough space.
+    *
+    *
+    * For simplicity, array lengths are assumed to be multiples of 256.
+    *
+    * Return array size
+    */
+    static inline uint32_t fastuncompress(const dictionary_coded_t & t, uint64_t * out) {
+        assert(t.array_length % 256 == 0);
+        avxunpackdict((const __m256i*) t.compressed_data,
+                      (const int64_t *) t.dictionary,(int64_t *)  out, t.array_length, t.bit_width);
+        return t.array_length;
+    }
+
 
     inline void clearBuffer() {
         buffercapacity = 0;

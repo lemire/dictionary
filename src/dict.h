@@ -25,6 +25,25 @@ public:
     {
     }
 
+
+    dictionary_coded_t(const dictionary_coded_t && s) :
+        dictionary (std::move(s.dictionary)),
+        dictionary_size (std::move(s.dictionary_size)),
+        compressed_data (std::move(s.compressed_data)),
+        array_length (std::move(s.array_length)),
+        compressed_data_size(std::move(s.compressed_data_size)),
+        bit_width (std::move(s.bit_width))
+    {
+    }
+
+
+    virtual ~dictionary_coded_t() {
+        delete[] dictionary;
+        delete[] compressed_data;
+        init();
+    }
+
+private:
     dictionary_coded_t(const dictionary_coded_t & s) :
         dictionary ( NULL),
         dictionary_size (0),
@@ -34,24 +53,6 @@ public:
         bit_width ( 0)
     {
         *this = s; // does a deep copy
-    }
-
-    dictionary_coded_t(const dictionary_coded_t && s) :
-        dictionary (std::move(s.dictionary)),
-        dictionary_size (std::move(dictionary_size)),
-        compressed_data (std::move(compressed_data)),
-        array_length (std::move(array_length)),
-        compressed_data_size(std::move(compressed_data_size)),
-        bit_width (std::move(bit_width))
-    {
-        *this = s; // does a deep copy
-    }
-
-
-    virtual ~dictionary_coded_t() {
-        delete[] dictionary;
-        delete[] compressed_data;
-        init();
     }
 
     // does a deep copy
@@ -69,8 +70,6 @@ public:
         bit_width = s.bit_width;
         return *this;
     }
-
-private:
 
     void init() {
         dictionary = NULL;

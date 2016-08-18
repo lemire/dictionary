@@ -6,6 +6,8 @@ ifeq ($(DEBUG),1)
 GENFLAGS = -fPIC  -ggdb  -march=native -Wall -Wextra -pedantic -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address -Wno-unused
 else
 GENFLAGS =  -fPIC -O3  -march=native -Wall -Wextra -pedantic -Wshadow -Wno-unused
+#GENFLAGS =  -fPIC -O3 -mavx2 -Wall -Wextra -pedantic -Wshadow -Wno-unused
+#GENFLAGS =  -fPIC -O3 -msse2 -Wall -Wextra -pedantic -Wshadow -Wno-unused
 endif # debug
 CFLAGS =  -std=c99 $(GENFLAGS)
 CXXFLAGS = -std=c++11 -fpermissive $(GENFLAGS)

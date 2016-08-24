@@ -17,8 +17,9 @@
 
 /** avxdict **/
 
-typedef void (*avxunpackdictfnc)(const __m256i * compressed, const int64_t * dictionary, int64_t * pout);
-static void avxunpackdict0(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+typedef long long myint64;
+typedef void (*avxunpackdictfnc)(const __m256i * compressed, const myint64 * dictionary, int64_t * pout);
+static void avxunpackdict0(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     (void) compressed;
     __m256i * out = (__m256i *) pout;
     const __m256i uniquew = _mm256_set1_epi64x(dictionary[0]);
@@ -29,7 +30,7 @@ static void avxunpackdict0(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 1-bit values, touching 1 256-bit words, using 16 bytes */
-static void avxunpackdict1(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict1(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  1 256-bit word */
     __m256i w0;
     __m256i wout;
@@ -136,7 +137,7 @@ static void avxunpackdict1(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 2-bit values, touching 2 256-bit words, using 32 bytes */
-static void avxunpackdict2(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict2(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  2 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -244,7 +245,7 @@ static void avxunpackdict2(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 3-bit values, touching 3 256-bit words, using 48 bytes */
-static void avxunpackdict3(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict3(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  3 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -353,7 +354,7 @@ static void avxunpackdict3(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 4-bit values, touching 4 256-bit words, using 64 bytes */
-static void avxunpackdict4(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict4(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  4 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -463,7 +464,7 @@ static void avxunpackdict4(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 5-bit values, touching 5 256-bit words, using 80 bytes */
-static void avxunpackdict5(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict5(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  5 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -574,7 +575,7 @@ static void avxunpackdict5(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 6-bit values, touching 6 256-bit words, using 96 bytes */
-static void avxunpackdict6(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict6(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  6 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -686,7 +687,7 @@ static void avxunpackdict6(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 7-bit values, touching 7 256-bit words, using 112 bytes */
-static void avxunpackdict7(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict7(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  7 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -799,7 +800,7 @@ static void avxunpackdict7(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 8-bit values, touching 8 256-bit words, using 128 bytes */
-static void avxunpackdict8(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict8(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  8 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -913,7 +914,7 @@ static void avxunpackdict8(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 9-bit values, touching 9 256-bit words, using 144 bytes */
-static void avxunpackdict9(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict9(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  9 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1028,7 +1029,7 @@ static void avxunpackdict9(const __m256i * compressed, const int64_t * dictionar
 
 
 /* we packed 256 10-bit values, touching 10 256-bit words, using 160 bytes */
-static void avxunpackdict10(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict10(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  10 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1144,7 +1145,7 @@ static void avxunpackdict10(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 11-bit values, touching 11 256-bit words, using 176 bytes */
-static void avxunpackdict11(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict11(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  11 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1261,7 +1262,7 @@ static void avxunpackdict11(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 12-bit values, touching 12 256-bit words, using 192 bytes */
-static void avxunpackdict12(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict12(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  12 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1379,7 +1380,7 @@ static void avxunpackdict12(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 13-bit values, touching 13 256-bit words, using 208 bytes */
-static void avxunpackdict13(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict13(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  13 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1498,7 +1499,7 @@ static void avxunpackdict13(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 14-bit values, touching 14 256-bit words, using 224 bytes */
-static void avxunpackdict14(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict14(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  14 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1618,7 +1619,7 @@ static void avxunpackdict14(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 15-bit values, touching 15 256-bit words, using 240 bytes */
-static void avxunpackdict15(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict15(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  15 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1739,7 +1740,7 @@ static void avxunpackdict15(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 16-bit values, touching 16 256-bit words, using 256 bytes */
-static void avxunpackdict16(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict16(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  16 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1861,7 +1862,7 @@ static void avxunpackdict16(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 17-bit values, touching 17 256-bit words, using 272 bytes */
-static void avxunpackdict17(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict17(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  17 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -1984,7 +1985,7 @@ static void avxunpackdict17(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 18-bit values, touching 18 256-bit words, using 288 bytes */
-static void avxunpackdict18(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict18(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  18 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -2108,7 +2109,7 @@ static void avxunpackdict18(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 19-bit values, touching 19 256-bit words, using 304 bytes */
-static void avxunpackdict19(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict19(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  19 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -2233,7 +2234,7 @@ static void avxunpackdict19(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 20-bit values, touching 20 256-bit words, using 320 bytes */
-static void avxunpackdict20(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict20(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  20 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -2359,7 +2360,7 @@ static void avxunpackdict20(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 21-bit values, touching 21 256-bit words, using 336 bytes */
-static void avxunpackdict21(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict21(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  21 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -2486,7 +2487,7 @@ static void avxunpackdict21(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 22-bit values, touching 22 256-bit words, using 352 bytes */
-static void avxunpackdict22(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict22(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  22 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -2614,7 +2615,7 @@ static void avxunpackdict22(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 23-bit values, touching 23 256-bit words, using 368 bytes */
-static void avxunpackdict23(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict23(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  23 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -2743,7 +2744,7 @@ static void avxunpackdict23(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 24-bit values, touching 24 256-bit words, using 384 bytes */
-static void avxunpackdict24(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict24(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  24 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -2873,7 +2874,7 @@ static void avxunpackdict24(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 25-bit values, touching 25 256-bit words, using 400 bytes */
-static void avxunpackdict25(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict25(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  25 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -3004,7 +3005,7 @@ static void avxunpackdict25(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 26-bit values, touching 26 256-bit words, using 416 bytes */
-static void avxunpackdict26(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict26(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  26 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -3136,7 +3137,7 @@ static void avxunpackdict26(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 27-bit values, touching 27 256-bit words, using 432 bytes */
-static void avxunpackdict27(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict27(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  27 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -3269,7 +3270,7 @@ static void avxunpackdict27(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 28-bit values, touching 28 256-bit words, using 448 bytes */
-static void avxunpackdict28(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict28(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  28 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -3403,7 +3404,7 @@ static void avxunpackdict28(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 29-bit values, touching 29 256-bit words, using 464 bytes */
-static void avxunpackdict29(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict29(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  29 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -3538,7 +3539,7 @@ static void avxunpackdict29(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 30-bit values, touching 30 256-bit words, using 480 bytes */
-static void avxunpackdict30(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict30(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  30 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -3674,7 +3675,7 @@ static void avxunpackdict30(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 31-bit values, touching 31 256-bit words, using 496 bytes */
-static void avxunpackdict31(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict31(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  31 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -3811,7 +3812,7 @@ static void avxunpackdict31(const __m256i * compressed, const int64_t * dictiona
 
 
 /* we packed 256 32-bit values, touching 32 256-bit words, using 512 bytes */
-static void avxunpackdict32(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {
+static void avxunpackdict32(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {
     /* we are going to access  32 256-bit words */
     __m256i w0, w1;
     __m256i wout;
@@ -3984,7 +3985,7 @@ static avxunpackdictfnc avxfuncUnpackDictArr[] = {
 /** end of avxdict **/
 
 
-void avxunpackdict(const __m256i *  in, const int64_t * dictionary,int64_t *  out, const uint32_t number, const uint32_t bit) {
+void avxunpackdict(const __m256i *  in, const myint64 * dictionary,int64_t *  out, const uint32_t number, const uint32_t bit) {
     for(uint32_t i = 0; i < number / 256; ++i)
         avxfuncUnpackDictArr[bit](in + i * bit, dictionary, out + i * 256);
 }

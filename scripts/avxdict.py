@@ -15,9 +15,12 @@ def howmanybytes(bit):
 
 print("""
 /** avxdict **/
+
+
+typedef long long myint64;
 """)
 
-print("""typedef void (*avxunpackdictfnc)(const __m256i * compressed, const int64_t * dictionary, int64_t * pout);""")
+print("""typedef void (*avxunpackdictfnc)(const __m256i * compressed, const myint64 * dictionary, int64_t * pout);""")
 
 
 
@@ -30,7 +33,7 @@ def plurial(number):
     else :
         return ""
 
-print("static void avxunpackdict0(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {");
+print("static void avxunpackdict0(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {");
 print("  (void) compressed;");
 print("  __m256i * out = (__m256i *) pout;");
 print("  const __m256i uniquew = _mm256_set1_epi64x(dictionary[0]);");
@@ -43,7 +46,7 @@ print("")
 for bit in range(1,33):
     print("")
     print("/* we packed {0} {1}-bit values, touching {2} 256-bit words, using {3} bytes */ ".format(howmany(bit),bit,howmanywords(bit),howmanybytes(bit)))
-    print("static void avxunpackdict{0}(const __m256i * compressed, const int64_t * dictionary, int64_t * pout) {{".format(bit));
+    print("static void avxunpackdict{0}(const __m256i * compressed, const myint64 * dictionary, int64_t * pout) {{".format(bit));
     print("  /* we are going to access  {0} 256-bit word{1} */ ".format(howmanywords(bit),plurial(howmanywords(bit))));
     if(howmanywords(bit) == 1):
       print("  __m256i w0;")

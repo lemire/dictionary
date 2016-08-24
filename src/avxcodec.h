@@ -111,7 +111,7 @@ public:
         assert(t.array_length % 256 == 0);
         assert(t.array_length * t.bit_width ==  t.compressed_data_size * 8);
         avxunpackdict((const __m256i*) t.compressed_data,
-                      (const int64_t *) t.dictionary,(int64_t *)  out, t.array_length, t.bit_width);
+                      (const myint64 *) t.dictionary,(int64_t *)  out, t.array_length, t.bit_width);
         return t.array_length;
     }
 
@@ -129,7 +129,7 @@ public:
         assert(t.array_length * t.bit_width ==  t.compressed_data_size * 8);
         assert(start + length <= t.array_length);
         avxunpackdict((const __m256i*) ( t.compressed_data + start * t.bit_width / 8),
-                      (const int64_t *) t.dictionary,(int64_t *)  out, length, t.bit_width);
+                      (const myint64 *) t.dictionary,(int64_t *)  out, length, t.bit_width);
         return t.array_length - start - length;
     }
 

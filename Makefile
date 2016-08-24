@@ -10,7 +10,7 @@ GENFLAGS =  -fPIC -O3  -march=native -Wall -Wextra -pedantic -Wshadow -Wno-unuse
 #GENFLAGS =  -fPIC -O3 -msse2 -Wall -Wextra -pedantic -Wshadow -Wno-unused
 endif # debug
 CFLAGS =  -std=c99 $(GENFLAGS)
-CXXFLAGS = -std=c++11 -fpermissive $(GENFLAGS)
+CXXFLAGS = -std=c++11 $(GENFLAGS)
 
 HEADERS=src/bpacking.h src/dict.h  src/scalarcodec.h src/avxbpacking.h src/avxcodec.h  src/avxdict.h
 EXECUTABLES=scalartest avxtest decodebenchmark

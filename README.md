@@ -61,77 +61,178 @@ make && make test
 ./decodebenchmark
 ```
 
-## Experimental results (August 12th 2016)
+## Experimental results (Skylake, August 24th 2016)
 
 We find that an AVX2 dictionary decoder can be more than twice as fast as a good scalar decoder
-on a recent Intel processor (Skylake). See results below. We expect results on older
+on a recent Intel processor (Skylake) for modest dictionary sizes. Even with large
+dictionaries, the AVX2 gather approach is still remarkably faster. See results below. We expect results on older
 Intel architectures to be less impressive because the ``vpgather`` instruction that we use was
 quite slow in its early incarnations.
 
 ```bash
 $ ./decodebenchmark
 For this benchmark, use a recent (Skylake) Intel processor for best results.
-Intel processor:  Skylake	 compiler version: 5.3.0 20151204		AVX2 is available.
+Intel processor:  Skylake     compiler version: 5.3.0 20151204        AVX2 is available.
+Using array sizes of 8388608 values or 65536 kiB.
 testing with dictionary of size 2
-        scalarcodec.uncompress(t,newbuf):  3.07 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.15 cycles per decoded value
+Actual dict size: 2
+        scalarcodec.uncompress(t,newbuf):  4.00 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.06 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.45 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  1.91 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.15 cycles per decoded value
 
 testing with dictionary of size 4
-        scalarcodec.uncompress(t,newbuf):  2.93 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.19 cycles per decoded value
+Actual dict size: 4
+        scalarcodec.uncompress(t,newbuf):  3.99 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.06 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.46 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  1.91 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.19 cycles per decoded value
 
 testing with dictionary of size 8
-        scalarcodec.uncompress(t,newbuf):  2.40 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.18 cycles per decoded value
+Actual dict size: 8
+        scalarcodec.uncompress(t,newbuf):  3.52 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  2.38 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.49 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  1.93 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.17 cycles per decoded value
 
 testing with dictionary of size 16
-        scalarcodec.uncompress(t,newbuf):  2.92 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.23 cycles per decoded value
+Actual dict size: 16
+        scalarcodec.uncompress(t,newbuf):  4.01 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.08 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.50 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  1.95 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.19 cycles per decoded value
 
 testing with dictionary of size 32
-        scalarcodec.uncompress(t,newbuf):  2.94 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.18 cycles per decoded value
+Actual dict size: 32
+        scalarcodec.uncompress(t,newbuf):  4.02 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.06 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.51 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  1.96 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.18 cycles per decoded value
 
 testing with dictionary of size 64
-        scalarcodec.uncompress(t,newbuf):  2.97 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.18 cycles per decoded value
+Actual dict size: 64
+        scalarcodec.uncompress(t,newbuf):  4.02 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.08 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.54 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  1.98 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.17 cycles per decoded value
 
 testing with dictionary of size 128
-        scalarcodec.uncompress(t,newbuf):  2.32 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.18 cycles per decoded value
+Actual dict size: 128
+        scalarcodec.uncompress(t,newbuf):  3.59 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  2.35 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.55 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  1.99 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.14 cycles per decoded value
 
 testing with dictionary of size 256
-        scalarcodec.uncompress(t,newbuf):  3.17 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.32 cycles per decoded value
+Actual dict size: 256
+        scalarcodec.uncompress(t,newbuf):  4.03 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.10 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.55 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  2.00 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.22 cycles per decoded value
 
 testing with dictionary of size 512
-        scalarcodec.uncompress(t,newbuf):  3.44 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.46 cycles per decoded value
+Actual dict size: 512
+        scalarcodec.uncompress(t,newbuf):  4.04 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.11 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.55 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  2.01 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.20 cycles per decoded value
 
 testing with dictionary of size 1024
-        scalarcodec.uncompress(t,newbuf):  3.49 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.51 cycles per decoded value
+Actual dict size: 1024
+        scalarcodec.uncompress(t,newbuf):  4.04 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.11 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.57 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  2.04 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.18 cycles per decoded value
 
 testing with dictionary of size 2048
-        scalarcodec.uncompress(t,newbuf):  3.67 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.72 cycles per decoded value
+Actual dict size: 2048
+        scalarcodec.uncompress(t,newbuf):  4.08 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.15 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.67 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  2.05 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.22 cycles per decoded value
 
 testing with dictionary of size 4096
-        scalarcodec.uncompress(t,newbuf):  3.72 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.69 cycles per decoded value
+Actual dict size: 4096
+        scalarcodec.uncompress(t,newbuf):  4.14 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.33 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.69 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  2.12 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.32 cycles per decoded value
 
 testing with dictionary of size 8192
-        scalarcodec.uncompress(t,newbuf):  3.72 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.74 cycles per decoded value
+Actual dict size: 8192
+        scalarcodec.uncompress(t,newbuf):  4.35 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.65 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  3.85 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  2.28 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  1.67 cycles per decoded value
 
 testing with dictionary of size 16384
-        scalarcodec.uncompress(t,newbuf):  3.24 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.45 cycles per decoded value
+Actual dict size: 16384
+        scalarcodec.uncompress(t,newbuf):  4.51 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.95 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  4.07 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  2.55 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  2.12 cycles per decoded value
 
 testing with dictionary of size 32768
-        scalarcodec.uncompress(t,newbuf):  2.67 cycles per decoded value
-  AVXDictCODEC::fastuncompress(t,newbuf):  1.41 cycles per decoded value
+Actual dict size: 32768
+        scalarcodec.uncompress(t,newbuf):  4.88 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  3.84 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  4.89 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  3.52 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  3.02 cycles per decoded value
 
+testing with dictionary of size 65536
+Actual dict size: 65536
+        scalarcodec.uncompress(t,newbuf):  7.14 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  5.47 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  6.68 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  5.18 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  4.53 cycles per decoded value
+
+testing with dictionary of size 131072
+Actual dict size: 131072
+        scalarcodec.uncompress(t,newbuf):  7.96 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  6.05 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  7.53 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  6.01 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  5.43 cycles per decoded value
+
+testing with dictionary of size 262144
+Actual dict size: 262144
+        scalarcodec.uncompress(t,newbuf):  8.30 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  6.35 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  8.08 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  6.46 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  5.66 cycles per decoded value
+
+testing with dictionary of size 524288
+Actual dict size: 524288
+        scalarcodec.uncompress(t,newbuf):  8.48 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  6.39 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  8.09 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  6.44 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  5.83 cycles per decoded value
+
+testing with dictionary of size 1048576
+Actual dict size: 1048235
+        scalarcodec.uncompress(t,newbuf):  11.85 cycles per decoded value
+   decodetocache(&sc, &t,newbuf,bufsize):  10.53 cycles per decoded value
+           avxcodec.uncompress(t,newbuf):  11.65 cycles per decoded value
+  AVXDictCODEC::fastuncompress(t,newbuf):  8.47 cycles per decoded value
+     AVXdecodetocache(&t,newbuf,bufsize):  8.07 cycles per decoded value
 ```
 
 ## Limitations

@@ -79,6 +79,26 @@ public:
         return t.array_length;
     }
 
+    /**
+    * Uncompresses size values from index start
+    * This can be used to uncompress data to cache.
+    *
+    * For simplicity, all indexes and lengths are are assumed to be multiples of 32.
+    * Return the number of remain values left to be decoded (starting at index start+length)
+    */
+    inline uint32_t rangeuncompress(const dictionary_coded_t & t, uint64_t * out, size_t start, size_t length) {
+        assert(t.array_length % 32 == 0);
+        assert(start % 32 == 0);
+        assert(length % 32 == 0);
+        assert(t.array_length * t.bit_width ==  t.compressed_data_size * 8);
+        assert(start + length <= t.array_length);
+        ensureBufferCapacity(t.array_length);
+        unpack32((const uint32_t*) (t.compressed_data + start * t.bit_width / 8), tmpbuffer, length, t.bit_width);
+        for(size_t i = 0; i < length; ++i) {
+            out[i] = t.dictionary[tmpbuffer[i]];
+        }
+        return t.array_length - start - length;
+    }
 
 
     inline void clearBuffer() {

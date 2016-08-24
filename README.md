@@ -26,8 +26,29 @@ for the sake of this experiment.
 It is tempting in dictionary coding, to first unpack the indexes to a temporary buffer
 and then run through it and look-up the values in the dictionary. What if it were possible
 to decode the indexes and look-up the values in the dictionary in one step?
-It is possible with vector instructions as long as you have access to a ``gather`` 
+It is possible with vector instructions as long as you have access to a ``gather``
 instruction. Thankfully, recent commodity x64 processors have such an instruction.
+
+## A word on RAM access
+
+There is no slower processor than an idle processor waiting for the memory
+subsystem.
+
+When working with large data sets, it is tempting to decompress them from RAM
+to RAM, converting gigabytes of compressed data into (many more) gigabytes of
+uncompressed data.
+
+If the purpose of compression is to keep more of the data close to the CPU,
+then this is wasteful.
+
+One should engineer applications so as to work on cache-friendly blocks. For
+example, if have an array made of billions of values, instead of decoding them
+all to RAM, and then reading them, it is much better to decode them in small blocks
+at a time. In fact, ideally, one would prefer not to decode the data at all if possible:
+working directly over the compressed data would be ideal.
+
+If you must decode gigabytes of data to RAM or to disk, then you should expect
+to be wasting enormous quantities of CPU cycles.
 
 ## Credit
 
@@ -44,7 +65,7 @@ make && make test
 
 We find that an AVX2 dictionary decoder can be more than twice as fast as a good scalar decoder
 on a recent Intel processor (Skylake). See results below. We expect results on older
-Intel architectures to be less impressive because the ``vpgather`` instruction that we use was 
+Intel architectures to be less impressive because the ``vpgather`` instruction that we use was
 quite slow in its early incarnations.
 
 ```bash
@@ -119,4 +140,3 @@ testing with dictionary of size 32768
 - This code makes up its own convenient format. It is not meant to plug as-is into an existing framework.
 - We assume that the arrays are large. If you have tiny arrays... well...
 - We effectively measure steady-state throughput. So we ignore costs such as loading up the dictionary in CPU cache.
-

@@ -71,10 +71,10 @@ void mediumtest(uint32_t distinct, uint32_t length = 1<<16, int repeat = 500) {
     uint64_t * buf = new uint64_t[length];
     fill_buffer(buf, length, distinct);
 
-    AVXDictCODEC codec;
-    dictionary_coded_t t (codec.compress(buf, length) );
+    AVXDictCODEC avxcodec;
+    dictionary_coded_t t (avxcodec.compress(buf, length) );
     uint64_t * newbuf = new uint64_t[length];
-    BEST_TIME(codec.uncompress(t,newbuf), length, repeat, length);
+    BEST_TIME(avxcodec.uncompress(t,newbuf), length, repeat, length);
     for(size_t i = 0; i < length; i++) {
         assert(buf[i] == newbuf[i]);
     }

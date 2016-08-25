@@ -1,5 +1,5 @@
 # dictionary
-Experiments with high-performance dictionary coding
+High-performance dictionary coding
 
 Suppose you want to compress a large array of values with
 (relatively) few distinct values. For example, maybe you have 16 distinct 64-bit

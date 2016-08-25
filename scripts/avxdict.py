@@ -11,7 +11,7 @@ def howmanywords(bit):
     return (howmany(bit) * bit + 255)/256
 
 def howmanybytes(bit):
-    return howmanywords(bit) * 16
+    return howmanywords(bit) * 32
 
 print("""
 /** avxdict **/
@@ -74,8 +74,7 @@ for bit in range(1,33):
           if(firstshift + bit <> 32):
             wfirst  = maskstr.format(wfirst)
           print("  wout = {0}; // 256-bit word to be output".format(wfirst));
-          #print("  _mm256_storeu_si256(out + {0}, {1});".format(j,wfirst))
-          print("  _mm256_storeu_si256(out + {0},_mm256_i32gather_epi64(dictionary,_mm256_extractf128_si256(wout,0), 8)); // load from dictionary and store".format(2*j))
+          print("  _mm256_storeu_si256(out + {0},_mm256_i32gather_epi64(dictionary,_mm256_castsi256_si128(wout), 8)); // load from dictionary and store".format(2*j))
           print("  _mm256_storeu_si256(out + {0},_mm256_i32gather_epi64(dictionary,_mm256_extractf128_si256(wout,1), 8)); // load from dictionary and store".format(2*j+1))
       else:
           secondshift = (32-firstshift)
@@ -83,7 +82,7 @@ for bit in range(1,33):
           wfirstorsecond = " _mm256_or_si256 ({0},{1}) ".format(wfirst,wsecond)
           wfirstorsecond = maskstr.format(wfirstorsecond)
           print("  wout = {0}; // 256-bit word to be output".format(wfirstorsecond));
-          print("  _mm256_storeu_si256(out + {0},_mm256_i32gather_epi64(dictionary,_mm256_extractf128_si256(wout,0), 8)); // load from dictionary and store".format(2*j))
+          print("  _mm256_storeu_si256(out + {0},_mm256_i32gather_epi64(dictionary,_mm256_castsi256_si128(wout), 8)); // load from dictionary and store".format(2*j))
           print("  _mm256_storeu_si256(out + {0},_mm256_i32gather_epi64(dictionary,_mm256_extractf128_si256(wout,1), 8)); // load from dictionary and store".format(2*j+1))
     print("}");
     print("")

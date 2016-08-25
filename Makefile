@@ -12,7 +12,7 @@ endif # debug
 CFLAGS =  -std=c99 $(GENFLAGS)
 CXXFLAGS = -std=c++11 $(GENFLAGS)
 
-HEADERS=src/bpacking.h src/dict.h  src/scalarcodec.h src/avxbpacking.h src/avxcodec.h  src/avxdict.h
+HEADERS=src/bpacking.h src/dict.h  src/scalarcodec.h src/avx512bpacking.h src/avx512codec.h  src/avx512dict.h  src/avxbpacking.h src/avxcodec.h  src/avxdict.h
 EXECUTABLES=scalartest avxtest decodebenchmark
 
 all: $(EXECUTABLES)

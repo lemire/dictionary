@@ -10,6 +10,10 @@
 #include "avxcodec.h"
 #endif
 
+#ifdef __AVX512F__
+#include "avx512codec.h"
+#endif
+
 #include "scalarcodec.h"
 
 
@@ -122,6 +126,48 @@ void fastcachetest(uint32_t distinct, uint32_t length = 1<<16, int repeat = 500)
     delete[] buf;
 }
 #endif
+#ifdef __AVX512F__
+
+void fastavx512test(uint32_t distinct, uint32_t length = 1<<16, int repeat = 500) {
+    uint64_t * buf = new uint64_t[length];
+    fill_buffer(buf, length, distinct);
+    dictionary_coded_t t (AVX512DictCODEC().compress(buf, length) );
+    uint64_t * newbuf = new uint64_t[length];
+    BEST_TIME(AVX512DictCODEC::fastuncompress(t,newbuf), length, repeat, length);
+    for(size_t i = 0; i < length; i++) {
+        assert(buf[i] == newbuf[i]);
+    }
+    delete[] newbuf;
+    delete[] buf;
+}
+
+size_t AVX512decodetocache(dictionary_coded_t * t, uint64_t * newbuf, size_t blocksize) {
+  size_t totaldecoded = 0;
+  size_t leftover = t->array_length;
+  for(size_t i = 0; i <  t->array_length; i += blocksize) {
+    size_t todecode = leftover > blocksize ? blocksize : leftover;
+    totaldecoded += todecode;
+    leftover = AVX512DictCODEC::fastrangeuncompress(*t,newbuf, i , todecode);
+  }
+  return totaldecoded;
+}
+
+void fastavx512cachetest(uint32_t distinct, uint32_t length = 1<<16, int repeat = 500) {
+    uint64_t * buf = new uint64_t[length];
+    fill_buffer(buf, length, distinct);
+
+    dictionary_coded_t t (AVX512DictCODEC().compress(buf, length) );
+    size_t bufsize = 1 << 16;
+    uint64_t * newbuf = new uint64_t[bufsize];
+    BEST_TIME(AVX512decodetocache(&t,newbuf,bufsize), length, repeat, length);
+    for(size_t i = length - bufsize; i < length; i++) {
+        assert(buf[i] == newbuf[i - length + bufsize]);
+    }
+    delete[] newbuf;
+    delete[] buf;
+}
+#endif
+
 
 int main() {
     printf("For this benchmark, use a recent (Skylake) Intel processor for best results.\n");
@@ -139,7 +185,11 @@ int main() {
         fasttest(distinct, length, repeat);
         fastcachetest(distinct, length, repeat);
 #endif
-        std::cout<<std::endl;
+#ifdef __AVX512F__
+        fastavx512test(distinct, length, repeat);
+        fastavx512cachetest(distinct, length, repeat);
+#endif
+         std::cout<<std::endl;
     }
     return 0;
 }

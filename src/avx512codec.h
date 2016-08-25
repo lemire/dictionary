@@ -35,7 +35,7 @@ public:
 
     AVX512DictCODEC() : tmpbuffer(NULL), buffercapacity(0) {}
 
-    virtual ~AVXDictCODEC() {
+    virtual ~AVX512DictCODEC() {
         clearBuffer();
     }
     /**

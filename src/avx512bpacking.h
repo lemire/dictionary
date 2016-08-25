@@ -7770,18 +7770,21 @@ static avx512unpackblockfnc avx512funcUnpackArr[] = {
 
 
 /* reads 512 values from "in", writes  "bit" 512-bit vectors to "out" */
-void avx512pack(const uint32_t *  in,__m512i *  out, const uint32_t bit) {
-	avx512funcPackMaskArr[bit](in,out);
+void avx512pack(const uint32_t *  in,__m512i *  out, const uint32_t number, const uint32_t bit) {
+    for(uint32_t i = 0; i < number / 512; ++i)
+        avx512funcPackMaskArr[bit](in + i * 512,out + i * bit);
 }
 
 /* reads 512 values from "in", writes  "bit" 512-bit vectors to "out" */
-void avx512packwithoutmask(const uint32_t *  in,__m512i *  out, const uint32_t bit) {
-	avx512funcPackArr[bit](in,out);
+void avx512packwithoutmask(const uint32_t *  in,__m512i *  out, const uint32_t number, const uint32_t bit) {
+    for(uint32_t i = 0; i < number / 512; ++i)
+        avx512funcPackArr[bit](in + i * 512,out + i * bit);
 }
 
 /* reads  "bit" 512-bit vectors from "in", writes  512 values to "out" */
-void avx512unpack(const __m512i *  in,uint32_t *  out, const uint32_t bit) {
-	avx512funcUnpackArr[bit](in,out);
+void avx512unpack(const __m512i *  in,uint32_t *  out, const uint32_t number, const uint32_t bit) {
+    for(uint32_t i = 0; i < number / 512; ++i)
+        avx512funcUnpackArr[bit](in + i * bit,out + i * 512);
 }
 
 #endif

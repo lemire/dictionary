@@ -74,16 +74,16 @@ for bit in range(1,33):
           if(firstshift + bit <> 32):
             wfirst  = maskstr.format(wfirst)
           print("  wout = {0}; // 512-bit word to be output".format(wfirst));
-          print("  _mm512_storeu_si512(out + {0},_mm512_i32gather_epi64(dictionary,_mm512_castsi512_si256(wout), 8)); // load from dictionary and store".format(2*j))
-          print("  _mm512_storeu_si512(out + {0},_mm512_i32gather_epi64(dictionary,_mm512_extracti64x4_epi64(wout,1), 8)); // load from dictionary and store".format(2*j+1))
+          print("  _mm512_storeu_si512(out + {0},_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store".format(2*j))
+          print("  _mm512_storeu_si512(out + {0},_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store".format(2*j+1))
       else:
           secondshift = (32-firstshift)
           wsecond = "_mm512_slli_epi32( w{0} , {1} ) ".format((firstword+1)%2,secondshift)
           wfirstorsecond = " _mm512_or_si512 ({0},{1}) ".format(wfirst,wsecond)
           wfirstorsecond = maskstr.format(wfirstorsecond)
           print("  wout = {0}; // 512-bit word to be output".format(wfirstorsecond));
-          print("  _mm512_storeu_si512(out + {0},_mm512_i32gather_epi64(dictionary,_mm512_castsi512_si256(wout), 8)); // load from dictionary and store".format(2*j))
-          print("  _mm512_storeu_si512(out + {0},_mm512_i32gather_epi64(dictionary,_mm512_extracti64x4_epi64(wout,1), 8)); // load from dictionary and store".format(2*j+1))
+          print("  _mm512_storeu_si512(out + {0},_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store".format(2*j))
+          print("  _mm512_storeu_si512(out + {0},_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store".format(2*j+1))
     print("}");
     print("")
 

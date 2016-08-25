@@ -36,7 +36,7 @@ def plurial(number):
 print("static void avx512unpackdict0(const __m512i * compressed, const myint64 * dictionary, int64_t * pout) {");
 print("  (void) compressed;");
 print("  __m512i * out = (__m512i *) pout;");
-print("  const __m512i uniquew = _mm512_set1_epi64x(dictionary[0]);");
+print("  const __m512i uniquew = _mm512_set1_epi64(dictionary[0]);");
 print("  for(int k = 0; k < {0}; k++) {{".format(howmany(0)/howmany64perwideword()));
 print("    _mm512_storeu_si512(out + k, uniquew);")
 print("  }");
@@ -58,12 +58,12 @@ for bit in range(1,33):
     maskstr = " _mm512_and_si512 ( mask, {0}) "
     if (bit == 32) : maskstr = " {0} " # no need
     oldword = 0
-    print("  w0 = _mm512_lddqu_si512 (compressed);")
+    print("  w0 = _mm512_loadu_si512 (compressed);")
     for j in range(howmany(bit)/16):
       firstword = j * bit / 32
       secondword = (j * bit + bit - 1)/32
       if(secondword > oldword):
-        print("  w{0} = _mm512_lddqu_si512 (compressed + {1});".format(secondword%2,secondword))
+        print("  w{0} = _mm512_loadu_si512 (compressed + {1});".format(secondword%2,secondword))
         oldword = secondword
       firstshift = (j*bit) % 32
       firstshiftstr = "_mm512_srli_epi32( w{0} , "+str(firstshift)+") "

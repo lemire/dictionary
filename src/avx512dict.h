@@ -27,7 +27,7 @@ typedef void (*avx512unpackdictfnc)(const __m512i * compressed, const myint64 * 
 static void avx512unpackdict0(const __m512i * compressed, const myint64 * dictionary, int64_t * pout) {
   (void) compressed;
   __m512i * out = (__m512i *) pout;
-  const __m512i uniquew = _mm512_set1_epi64x(dictionary[0]);
+  const __m512i uniquew = _mm512_set1_epi64(dictionary[0]);
   for(int k = 0; k < 64; k++) {
     _mm512_storeu_si512(out + k, uniquew);
   }
@@ -41,7 +41,7 @@ static void avx512unpackdict1(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(1);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -148,7 +148,7 @@ static void avx512unpackdict2(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(3);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -197,7 +197,7 @@ static void avx512unpackdict2(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w0 , 30) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -256,7 +256,7 @@ static void avx512unpackdict3(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(7);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -287,7 +287,7 @@ static void avx512unpackdict3(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 27) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -321,7 +321,7 @@ static void avx512unpackdict3(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 28) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -365,7 +365,7 @@ static void avx512unpackdict4(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(15);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -390,7 +390,7 @@ static void avx512unpackdict4(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w0 , 28) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -415,7 +415,7 @@ static void avx512unpackdict4(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w1 , 28) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -440,7 +440,7 @@ static void avx512unpackdict4(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w0 , 28) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -475,7 +475,7 @@ static void avx512unpackdict5(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(31);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -494,7 +494,7 @@ static void avx512unpackdict5(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 25) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -513,7 +513,7 @@ static void avx512unpackdict5(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 23) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -535,7 +535,7 @@ static void avx512unpackdict5(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 26) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 31) ,_mm512_slli_epi32( w1 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -554,7 +554,7 @@ static void avx512unpackdict5(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 24) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 29) ,_mm512_slli_epi32( w0 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -586,7 +586,7 @@ static void avx512unpackdict6(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(63);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -602,7 +602,7 @@ static void avx512unpackdict6(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 24) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -618,7 +618,7 @@ static void avx512unpackdict6(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 22) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -637,7 +637,7 @@ static void avx512unpackdict6(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w0 , 26) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -653,7 +653,7 @@ static void avx512unpackdict6(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 24) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -669,7 +669,7 @@ static void avx512unpackdict6(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 22) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -698,7 +698,7 @@ static void avx512unpackdict7(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(127);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -711,7 +711,7 @@ static void avx512unpackdict7(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 21) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -727,7 +727,7 @@ static void avx512unpackdict7(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 24) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -740,7 +740,7 @@ static void avx512unpackdict7(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 20) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -756,7 +756,7 @@ static void avx512unpackdict7(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 23) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -769,7 +769,7 @@ static void avx512unpackdict7(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 19) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -785,7 +785,7 @@ static void avx512unpackdict7(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 22) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 29) ,_mm512_slli_epi32( w0 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -811,7 +811,7 @@ static void avx512unpackdict8(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(255);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -824,7 +824,7 @@ static void avx512unpackdict8(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w0 , 24) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -837,7 +837,7 @@ static void avx512unpackdict8(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w1 , 24) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -850,7 +850,7 @@ static void avx512unpackdict8(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w0 , 24) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -863,7 +863,7 @@ static void avx512unpackdict8(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w1 , 24) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -876,7 +876,7 @@ static void avx512unpackdict8(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w0 , 24) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -889,7 +889,7 @@ static void avx512unpackdict8(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w1 , 24) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -902,7 +902,7 @@ static void avx512unpackdict8(const __m512i * compressed, const myint64 * dictio
   wout = _mm512_srli_epi32( w0 , 24) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -925,7 +925,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(511);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -935,7 +935,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 18) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -948,7 +948,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 22) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -958,7 +958,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 17) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -971,7 +971,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 21) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -981,7 +981,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 25) ,_mm512_slli_epi32( w1 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -994,7 +994,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 20) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 29) ,_mm512_slli_epi32( w0 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1004,7 +1004,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 15) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1017,7 +1017,7 @@ static void avx512unpackdict9(const __m512i * compressed, const myint64 * dictio
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 19) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1040,7 +1040,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(1023);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1050,7 +1050,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 20) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1060,7 +1060,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 18) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1070,7 +1070,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1080,7 +1080,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 14) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1093,7 +1093,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout = _mm512_srli_epi32( w0 , 22) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1103,7 +1103,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 20) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1113,7 +1113,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 18) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1123,7 +1123,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1133,7 +1133,7 @@ static void avx512unpackdict10(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 14) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1156,14 +1156,14 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(2047);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 11) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1173,7 +1173,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 23) ,_mm512_slli_epi32( w0 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1183,7 +1183,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 13) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1193,7 +1193,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 14) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 25) ,_mm512_slli_epi32( w0 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1203,7 +1203,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 15) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1213,7 +1213,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 27) ,_mm512_slli_epi32( w0 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1223,7 +1223,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 17) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1233,7 +1233,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 18) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 29) ,_mm512_slli_epi32( w0 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1243,7 +1243,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 19) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1253,7 +1253,7 @@ static void avx512unpackdict11(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 20) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1273,14 +1273,14 @@ static void avx512unpackdict12(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(4095);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1290,7 +1290,7 @@ static void avx512unpackdict12(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1300,14 +1300,14 @@ static void avx512unpackdict12(const __m512i * compressed, const myint64 * dicti
   wout = _mm512_srli_epi32( w0 , 20) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1317,7 +1317,7 @@ static void avx512unpackdict12(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1327,14 +1327,14 @@ static void avx512unpackdict12(const __m512i * compressed, const myint64 * dicti
   wout = _mm512_srli_epi32( w1 , 20) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1344,7 +1344,7 @@ static void avx512unpackdict12(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1354,14 +1354,14 @@ static void avx512unpackdict12(const __m512i * compressed, const myint64 * dicti
   wout = _mm512_srli_epi32( w0 , 20) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1371,7 +1371,7 @@ static void avx512unpackdict12(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1391,21 +1391,21 @@ static void avx512unpackdict13(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(8191);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 13) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 7) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1415,14 +1415,14 @@ static void avx512unpackdict13(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 14) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 21) ,_mm512_slli_epi32( w0 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1432,14 +1432,14 @@ static void avx512unpackdict13(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 15) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 9) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1449,14 +1449,14 @@ static void avx512unpackdict13(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 29) ,_mm512_slli_epi32( w1 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 23) ,_mm512_slli_epi32( w0 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1466,14 +1466,14 @@ static void avx512unpackdict13(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 17) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 11) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1483,14 +1483,14 @@ static void avx512unpackdict13(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 18) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 31) ,_mm512_slli_epi32( w1 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 25) ,_mm512_slli_epi32( w0 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1510,28 +1510,28 @@ static void avx512unpackdict14(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(16383);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 14) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1541,21 +1541,21 @@ static void avx512unpackdict14(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1565,28 +1565,28 @@ static void avx512unpackdict14(const __m512i * compressed, const myint64 * dicti
   wout = _mm512_srli_epi32( w0 , 18) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 14) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1596,21 +1596,21 @@ static void avx512unpackdict14(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1630,56 +1630,56 @@ static void avx512unpackdict15(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(32767);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 15) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 13) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 11) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 9) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 7) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 5) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 3) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 18) ,_mm512_slli_epi32( w1 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1689,49 +1689,49 @@ static void avx512unpackdict15(const __m512i * compressed, const myint64 * dicti
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 16) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 14) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 29) ,_mm512_slli_epi32( w1 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 27) ,_mm512_slli_epi32( w0 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 25) ,_mm512_slli_epi32( w1 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 23) ,_mm512_slli_epi32( w0 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 21) ,_mm512_slli_epi32( w1 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 19) ,_mm512_slli_epi32( w0 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1751,112 +1751,112 @@ static void avx512unpackdict16(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(65535);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 16) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1873,113 +1873,113 @@ static void avx512unpackdict17(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(131071);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 17) ,_mm512_slli_epi32( w1 , 15 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 19) ,_mm512_slli_epi32( w0 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 21) ,_mm512_slli_epi32( w1 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 23) ,_mm512_slli_epi32( w0 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 25) ,_mm512_slli_epi32( w1 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 27) ,_mm512_slli_epi32( w0 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 29) ,_mm512_slli_epi32( w1 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 14) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 1) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 3) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 5) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 7) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 9) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 11) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 13) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -1996,114 +1996,114 @@ static void avx512unpackdict18(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(262143);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 18) ,_mm512_slli_epi32( w1 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 14) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -2120,115 +2120,115 @@ static void avx512unpackdict19(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(524287);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 19) ,_mm512_slli_epi32( w1 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 25) ,_mm512_slli_epi32( w0 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 12) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 31) ,_mm512_slli_epi32( w1 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 5) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 11) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 17) ,_mm512_slli_epi32( w1 , 15 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 23) ,_mm512_slli_epi32( w0 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 29) ,_mm512_slli_epi32( w1 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 3) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 9) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 15) ,_mm512_slli_epi32( w1 , 17 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 21) ,_mm512_slli_epi32( w0 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 14) ,_mm512_slli_epi32( w0 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 1) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 7) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -2245,116 +2245,116 @@ static void avx512unpackdict20(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(1048575);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 12) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 12) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 12) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -2371,117 +2371,117 @@ static void avx512unpackdict21(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(2097151);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 21) ,_mm512_slli_epi32( w1 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 10) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 9) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 19) ,_mm512_slli_epi32( w1 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 29) ,_mm512_slli_epi32( w0 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 18) ,_mm512_slli_epi32( w1 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 7) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 17) ,_mm512_slli_epi32( w1 , 15 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 27) ,_mm512_slli_epi32( w0 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 5) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 15) ,_mm512_slli_epi32( w1 , 17 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 25) ,_mm512_slli_epi32( w0 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 14) ,_mm512_slli_epi32( w1 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 3) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 13) ,_mm512_slli_epi32( w1 , 19 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 23) ,_mm512_slli_epi32( w0 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 12) ,_mm512_slli_epi32( w1 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 1) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -2498,118 +2498,118 @@ static void avx512unpackdict22(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(4194303);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 14) ,_mm512_slli_epi32( w0 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 10) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 12) ,_mm512_slli_epi32( w1 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 14) ,_mm512_slli_epi32( w1 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 18) ,_mm512_slli_epi32( w1 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -2626,119 +2626,119 @@ static void avx512unpackdict23(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(8388607);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 23) ,_mm512_slli_epi32( w1 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 14) ,_mm512_slli_epi32( w0 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 5) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 19) ,_mm512_slli_epi32( w0 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 10) ,_mm512_slli_epi32( w1 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 1) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 15) ,_mm512_slli_epi32( w1 , 17 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 29) ,_mm512_slli_epi32( w0 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 11) ,_mm512_slli_epi32( w0 , 21 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 25) ,_mm512_slli_epi32( w1 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 7) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 21) ,_mm512_slli_epi32( w0 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 12) ,_mm512_slli_epi32( w1 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 3) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 17) ,_mm512_slli_epi32( w1 , 15 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 8) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 13) ,_mm512_slli_epi32( w0 , 19 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -2755,120 +2755,120 @@ static void avx512unpackdict24(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(16777215);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 8) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 8) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 8) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 8) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 8) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 8) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 8) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -2885,121 +2885,121 @@ static void avx512unpackdict25(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(33554431);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 25) ,_mm512_slli_epi32( w1 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 11) ,_mm512_slli_epi32( w1 , 21 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 29) ,_mm512_slli_epi32( w0 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 15) ,_mm512_slli_epi32( w0 , 17 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 8) ,_mm512_slli_epi32( w1 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 1) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 19) ,_mm512_slli_epi32( w1 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 5) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 23) ,_mm512_slli_epi32( w0 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 9) ,_mm512_slli_epi32( w0 , 23 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 13) ,_mm512_slli_epi32( w1 , 19 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 6) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 17) ,_mm512_slli_epi32( w0 , 15 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 10) ,_mm512_slli_epi32( w1 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 3) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 21) ,_mm512_slli_epi32( w1 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 24);
+  w0 = _mm512_loadu_si512 (compressed + 24);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 14) ,_mm512_slli_epi32( w0 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -3016,122 +3016,122 @@ static void avx512unpackdict26(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(67108863);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 14) ,_mm512_slli_epi32( w1 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 8) ,_mm512_slli_epi32( w0 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 10) ,_mm512_slli_epi32( w0 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 18) ,_mm512_slli_epi32( w1 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 6) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 14) ,_mm512_slli_epi32( w0 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 8) ,_mm512_slli_epi32( w1 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 10) ,_mm512_slli_epi32( w1 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 24);
+  w0 = _mm512_loadu_si512 (compressed + 24);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 25);
+  w1 = _mm512_loadu_si512 (compressed + 25);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 12) ,_mm512_slli_epi32( w1 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -3148,123 +3148,123 @@ static void avx512unpackdict27(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(134217727);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 17) ,_mm512_slli_epi32( w1 , 15 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 7) ,_mm512_slli_epi32( w1 , 25 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 29) ,_mm512_slli_epi32( w0 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 19) ,_mm512_slli_epi32( w0 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 14) ,_mm512_slli_epi32( w1 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 9) ,_mm512_slli_epi32( w0 , 23 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 4) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 31) ,_mm512_slli_epi32( w1 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 21) ,_mm512_slli_epi32( w1 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 11) ,_mm512_slli_epi32( w1 , 21 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 6) ,_mm512_slli_epi32( w0 , 26 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w0 , 1) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 23) ,_mm512_slli_epi32( w0 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 18) ,_mm512_slli_epi32( w1 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 13) ,_mm512_slli_epi32( w0 , 19 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 8) ,_mm512_slli_epi32( w1 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 3) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 25) ,_mm512_slli_epi32( w1 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 24);
+  w0 = _mm512_loadu_si512 (compressed + 24);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 25);
+  w1 = _mm512_loadu_si512 (compressed + 25);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 15) ,_mm512_slli_epi32( w1 , 17 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 26);
+  w0 = _mm512_loadu_si512 (compressed + 26);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 10) ,_mm512_slli_epi32( w0 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -3281,124 +3281,124 @@ static void avx512unpackdict28(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(268435455);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 12) ,_mm512_slli_epi32( w1 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 8) ,_mm512_slli_epi32( w0 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 4) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 8) ,_mm512_slli_epi32( w1 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w1 , 4) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 12) ,_mm512_slli_epi32( w1 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 8) ,_mm512_slli_epi32( w0 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 4) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 24);
+  w0 = _mm512_loadu_si512 (compressed + 24);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 25);
+  w1 = _mm512_loadu_si512 (compressed + 25);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 26);
+  w0 = _mm512_loadu_si512 (compressed + 26);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 27);
+  w1 = _mm512_loadu_si512 (compressed + 27);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 8) ,_mm512_slli_epi32( w1 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -3415,125 +3415,125 @@ static void avx512unpackdict29(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(536870911);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 29) ,_mm512_slli_epi32( w1 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 23) ,_mm512_slli_epi32( w1 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 17) ,_mm512_slli_epi32( w1 , 15 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 14) ,_mm512_slli_epi32( w0 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 11) ,_mm512_slli_epi32( w1 , 21 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 8) ,_mm512_slli_epi32( w0 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 5) ,_mm512_slli_epi32( w1 , 27 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 2) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 31) ,_mm512_slli_epi32( w0 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 25) ,_mm512_slli_epi32( w0 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 19) ,_mm512_slli_epi32( w0 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 13) ,_mm512_slli_epi32( w0 , 19 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 10) ,_mm512_slli_epi32( w1 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 7) ,_mm512_slli_epi32( w0 , 25 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 4) ,_mm512_slli_epi32( w1 , 28 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout =  _mm512_and_si512 ( mask, _mm512_srli_epi32( w1 , 1) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 21) ,_mm512_slli_epi32( w1 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 24);
+  w0 = _mm512_loadu_si512 (compressed + 24);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 25);
+  w1 = _mm512_loadu_si512 (compressed + 25);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 15) ,_mm512_slli_epi32( w1 , 17 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 26);
+  w0 = _mm512_loadu_si512 (compressed + 26);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 27);
+  w1 = _mm512_loadu_si512 (compressed + 27);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 9) ,_mm512_slli_epi32( w1 , 23 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 28);
+  w0 = _mm512_loadu_si512 (compressed + 28);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 6) ,_mm512_slli_epi32( w0 , 26 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -3550,126 +3550,126 @@ static void avx512unpackdict30(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(1073741823);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 30) ,_mm512_slli_epi32( w1 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 26) ,_mm512_slli_epi32( w1 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 22) ,_mm512_slli_epi32( w1 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 18) ,_mm512_slli_epi32( w1 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 14) ,_mm512_slli_epi32( w1 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 10) ,_mm512_slli_epi32( w1 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 8) ,_mm512_slli_epi32( w0 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 6) ,_mm512_slli_epi32( w1 , 26 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 4) ,_mm512_slli_epi32( w0 , 28 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
   wout = _mm512_srli_epi32( w0 , 2) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  w1 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 28) ,_mm512_slli_epi32( w1 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 24) ,_mm512_slli_epi32( w1 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 20) ,_mm512_slli_epi32( w1 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 16) ,_mm512_slli_epi32( w1 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 24);
+  w0 = _mm512_loadu_si512 (compressed + 24);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 14) ,_mm512_slli_epi32( w0 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 25);
+  w1 = _mm512_loadu_si512 (compressed + 25);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 12) ,_mm512_slli_epi32( w1 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 26);
+  w0 = _mm512_loadu_si512 (compressed + 26);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 10) ,_mm512_slli_epi32( w0 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 27);
+  w1 = _mm512_loadu_si512 (compressed + 27);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 8) ,_mm512_slli_epi32( w1 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 28);
+  w0 = _mm512_loadu_si512 (compressed + 28);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 6) ,_mm512_slli_epi32( w0 , 26 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 29);
+  w1 = _mm512_loadu_si512 (compressed + 29);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 4) ,_mm512_slli_epi32( w1 , 28 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -3686,127 +3686,127 @@ static void avx512unpackdict31(const __m512i * compressed, const myint64 * dicti
   __m512i wout;
   __m512i * out = (__m512i *) pout;
   const __m512i mask = _mm512_set1_epi32(2147483647);
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  _mm512_and_si512 ( mask,  w0 ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 31) ,_mm512_slli_epi32( w1 , 1 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 30) ,_mm512_slli_epi32( w0 , 2 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 29) ,_mm512_slli_epi32( w1 , 3 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 28) ,_mm512_slli_epi32( w0 , 4 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 27) ,_mm512_slli_epi32( w1 , 5 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 26) ,_mm512_slli_epi32( w0 , 6 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 25) ,_mm512_slli_epi32( w1 , 7 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 24) ,_mm512_slli_epi32( w0 , 8 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 23) ,_mm512_slli_epi32( w1 , 9 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 22) ,_mm512_slli_epi32( w0 , 10 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 21) ,_mm512_slli_epi32( w1 , 11 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 20) ,_mm512_slli_epi32( w0 , 12 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 19) ,_mm512_slli_epi32( w1 , 13 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 18) ,_mm512_slli_epi32( w0 , 14 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 17) ,_mm512_slli_epi32( w1 , 15 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 16) ,_mm512_slli_epi32( w0 , 16 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 15) ,_mm512_slli_epi32( w1 , 17 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 14) ,_mm512_slli_epi32( w0 , 18 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 13) ,_mm512_slli_epi32( w1 , 19 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 12) ,_mm512_slli_epi32( w0 , 20 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 11) ,_mm512_slli_epi32( w1 , 21 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 10) ,_mm512_slli_epi32( w0 , 22 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 9) ,_mm512_slli_epi32( w1 , 23 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 24);
+  w0 = _mm512_loadu_si512 (compressed + 24);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 8) ,_mm512_slli_epi32( w0 , 24 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 25);
+  w1 = _mm512_loadu_si512 (compressed + 25);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 7) ,_mm512_slli_epi32( w1 , 25 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 26);
+  w0 = _mm512_loadu_si512 (compressed + 26);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 6) ,_mm512_slli_epi32( w0 , 26 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 27);
+  w1 = _mm512_loadu_si512 (compressed + 27);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 5) ,_mm512_slli_epi32( w1 , 27 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 28);
+  w0 = _mm512_loadu_si512 (compressed + 28);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 4) ,_mm512_slli_epi32( w0 , 28 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 29);
+  w1 = _mm512_loadu_si512 (compressed + 29);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w0 , 3) ,_mm512_slli_epi32( w1 , 29 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 30);
+  w0 = _mm512_loadu_si512 (compressed + 30);
   wout =  _mm512_and_si512 ( mask,  _mm512_or_si512 (_mm512_srli_epi32( w1 , 2) ,_mm512_slli_epi32( w0 , 30 ) ) ) ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
@@ -3822,131 +3822,131 @@ static void avx512unpackdict32(const __m512i * compressed, const myint64 * dicti
   __m512i w0, w1;
   __m512i wout;
   __m512i * out = (__m512i *) pout;
-  w0 = _mm512_lddqu_si512 (compressed);
+  w0 = _mm512_loadu_si512 (compressed);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 0,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 1,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 1);
+  w1 = _mm512_loadu_si512 (compressed + 1);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 2,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 3,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 2);
+  w0 = _mm512_loadu_si512 (compressed + 2);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 4,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 5,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 3);
+  w1 = _mm512_loadu_si512 (compressed + 3);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 6,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 7,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 4);
+  w0 = _mm512_loadu_si512 (compressed + 4);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 8,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 9,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 5);
+  w1 = _mm512_loadu_si512 (compressed + 5);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 10,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 11,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 6);
+  w0 = _mm512_loadu_si512 (compressed + 6);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 12,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 13,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 7);
+  w1 = _mm512_loadu_si512 (compressed + 7);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 14,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 15,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 8);
+  w0 = _mm512_loadu_si512 (compressed + 8);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 16,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 17,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 9);
+  w1 = _mm512_loadu_si512 (compressed + 9);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 18,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 19,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 10);
+  w0 = _mm512_loadu_si512 (compressed + 10);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 20,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 21,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 11);
+  w1 = _mm512_loadu_si512 (compressed + 11);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 22,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 23,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 12);
+  w0 = _mm512_loadu_si512 (compressed + 12);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 24,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 25,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 13);
+  w1 = _mm512_loadu_si512 (compressed + 13);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 26,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 27,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 14);
+  w0 = _mm512_loadu_si512 (compressed + 14);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 28,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 29,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 15);
+  w1 = _mm512_loadu_si512 (compressed + 15);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 30,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 31,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 16);
+  w0 = _mm512_loadu_si512 (compressed + 16);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 32,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 33,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 17);
+  w1 = _mm512_loadu_si512 (compressed + 17);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 34,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 35,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 18);
+  w0 = _mm512_loadu_si512 (compressed + 18);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 36,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 37,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 19);
+  w1 = _mm512_loadu_si512 (compressed + 19);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 38,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 39,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 20);
+  w0 = _mm512_loadu_si512 (compressed + 20);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 40,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 41,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 21);
+  w1 = _mm512_loadu_si512 (compressed + 21);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 42,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 43,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 22);
+  w0 = _mm512_loadu_si512 (compressed + 22);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 44,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 45,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 23);
+  w1 = _mm512_loadu_si512 (compressed + 23);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 46,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 47,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 24);
+  w0 = _mm512_loadu_si512 (compressed + 24);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 48,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 49,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 25);
+  w1 = _mm512_loadu_si512 (compressed + 25);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 50,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 51,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 26);
+  w0 = _mm512_loadu_si512 (compressed + 26);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 52,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 53,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 27);
+  w1 = _mm512_loadu_si512 (compressed + 27);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 54,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 55,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 28);
+  w0 = _mm512_loadu_si512 (compressed + 28);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 56,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 57,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 29);
+  w1 = _mm512_loadu_si512 (compressed + 29);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 58,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 59,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w0 = _mm512_lddqu_si512 (compressed + 30);
+  w0 = _mm512_loadu_si512 (compressed + 30);
   wout =  w0 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 60,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 61,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store
-  w1 = _mm512_lddqu_si512 (compressed + 31);
+  w1 = _mm512_loadu_si512 (compressed + 31);
   wout =  w1 ; // 512-bit word to be output
   _mm512_storeu_si512(out + 62,_mm512_i32gather_epi64(_mm512_castsi512_si256(wout),dictionary, 8)); // load from dictionary and store
   _mm512_storeu_si512(out + 63,_mm512_i32gather_epi64(_mm512_extracti64x4_epi64(wout,1),dictionary, 8)); // load from dictionary and store

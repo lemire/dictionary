@@ -14,6 +14,8 @@ in an array. In the compression phase, we convert the values to indexes
 and binary pack them. In the decompression phase, we
 try to recover the dictionary-coded values as fast as possible.
 
+Dictionary coding is in common use within database systems (e.g., Oracle, Parquet and so forth).
+
 We are going to assume that one has a recent Intel processor
 for the sake of this experiment.
 
@@ -64,6 +66,8 @@ quite slow in its early incarnations.
 The case with large dictionary as implemented here is somewhat pessimistic as it assumes
 that all values are equally likely. In most instances, a dictionary will have frequent
 values, more likely to be repeated. This will reduce the number of cache misses.
+
+Also, in practice one might limit the size of the dictionary by horizontal partitions.
 
 ```bash
 $ ./decodebenchmark
@@ -448,6 +452,7 @@ AVX512DictCODEC::fastuncompress(t,newbuf):  15.32 cycles per decoded value
 ```
 
 ## Limitations
+- We support just one dictionary. In practice, one might want to use horizontal partitions.
 - We do not have a realistic usage of the dictionary values (we use a uniform distribution).
 - For simplicity, we assume that the dictionary is made of 64-bit words. It is hard-coded in the code, but not a fundamental limitation: the code would be faster with smaller words.
 - This code is not meant to be use in production. It is a demo.

@@ -464,3 +464,19 @@ AVX512DictCODEC::fastuncompress(t,newbuf):  15.32 cycles per decoded value
 Daniel Lemire and Eric Daniel (motivated by ``parquet-cpp``)
 
 
+## Other relevant libraries
+
+
+* The FastPFOR C++ library : Fast integer compression https://github.com/lemire/FastPFor
+* LittleIntPacker: C library to pack and unpack short arrays of integers as fast as possible https://github.com/lemire/LittleIntPacker
+* The SIMDComp library: A simple C library for compressing lists of integers using binary packing https://github.com/lemire/simdcomp
+* StreamVByte: Fast integer compression in C using the StreamVByte codec https://github.com/lemire/streamvbyte
+* MaskedVByte: Fast decoder for VByte-compressed integers https://github.com/lemire/MaskedVByte
+* CSharpFastPFOR: A C#  integer compression library  https://github.com/Genbox/CSharpFastPFOR
+* JavaFastPFOR: A java integer compression library https://github.com/lemire/JavaFastPFOR
+* Encoding: Integer Compression Libraries for Go https://github.com/zhenjl/encoding
+* FrameOfReference is a C++ library dedicated to frame-of-reference (FOR) compression: https://github.com/lemire/FrameOfReference
+* libvbyte: A fast implementation for varbyte 32bit/64bit integer compression https://github.com/cruppstahl/libvbyte
+* TurboPFor is a C library that offers lots of interesting optimizations. Well worth checking! (GPL license) https://github.com/powturbo/TurboPFor
+* Oroch is a C++ library that offers a usable API (MIT license) https://github.com/ademakov/Oroch
+

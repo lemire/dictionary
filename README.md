@@ -466,7 +466,7 @@ Daniel Lemire and Eric Daniel (motivated by ``parquet-cpp``)
 
 ## Other relevant libraries
 
-
+* SIMDCompressionAndIntersection: A C++ library to compress and intersect sorted lists of integers using SIMD instructions https://github.com/lemire/SIMDCompressionAndIntersect
 * The FastPFOR C++ library : Fast integer compression https://github.com/lemire/FastPFor
 * LittleIntPacker: C library to pack and unpack short arrays of integers as fast as possible https://github.com/lemire/LittleIntPacker
 * The SIMDComp library: A simple C library for compressing lists of integers using binary packing https://github.com/lemire/simdcomp
